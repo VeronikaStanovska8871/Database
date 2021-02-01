@@ -1,7 +1,5 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
+import java.util.concurrent.ExecutionException;
 
 public class Database {
     String url="jdbc:mysql://itsovy.sk:3306/world_x";
@@ -10,26 +8,55 @@ public class Database {
 
 
     public void showCities(String country){
-        String query= "SELECT City.Name,CountryCode" +
+        String query= "SELECT City.Name,JSON_EXTRACT(Info,'$.Population') AS Population" +
                 "FROM City"+
                 "INNER JOIN country ON country.code = city.countryCode"+
-                "WHERE country.name LIKE ?";
+                "WHERE country.name LIKE ? ORDER BY Population DESC";
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection conn= DriverManager.getConnection(url,username,password);
+            Connection conn = getConnection();
             if (conn!=null){
                 System.out.println("Succes");
                 PreparedStatement ps= conn.prepareStatement(query);
-                ps.setString(1, countryCode1);
+                ps.setString(1, country);
                 ResultSet rs= ps.executeQuery();
                 while(rs.next()){
                     String city= rs.getString("Name");
-                    String code= rs.getString("CountryCode");
-                    System.out.println(city+""+code);
+                    int pop= rs.getInt("Population");
+                    System.out.println(city+"("+pop+")");
+                    City city= new City(name,pop);
+                    list.add(city);
                 }
             } conn.close();
         }catch (Exception ex){
             ex.printStackTrace();
         }
+    }
+
+    private Connection getConnection() throws ClassNotFoundException, SQLException {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection conn= DriverManager.getConnection(url,username,password);
+        return conn;
+    }
+
+    public getCountryInfo(String country){
+      String query="SELECT country.name, country.code, city.name"+
+              "FROM country"+
+              "INNER JOIN city ON country.Capital= city.ID"+
+              "WHERE country.name LIKE ?";
+      try {
+          Connection con=getConnection();
+          PreparedStatement ps=con.prepareStatement(query);
+          ps.setString(1,country);
+          ResultSet rs=ps.executeQuery();
+          if (rs.next()){
+              String code3=rs.getString("country.code");
+              String capitalCity=rs.getString(city.name);
+              System.out.println(code3+""+capitalCity);
+          }
+      }catch (Exeption e){
+          e.printStackTrace();
+      }
+
+        return countryInfo;
     }
 }
