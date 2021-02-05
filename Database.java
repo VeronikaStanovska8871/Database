@@ -59,4 +59,31 @@ public class Database {
 
         return countryInfo;
     }
+
+    public getCountryCode (String name){
+        if (name=null || name.equalsIgnoreCase(""))
+            return null;
+        try {
+         Connection con= getConnection();
+         String query="SELECT Code FROM country WHERE Name LIKE ?";
+         PreparedStatement ps=con.prepareStatement(query);
+         ps.setString(1, name);
+         ResultSet rs=ps.executeQuery();
+         if (rs.next()){
+             String code = rs.getString("Code");
+             return code;
+         }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+    public updatePopulation(){
+        try{
+            Connection con= getConnection();
+            String query="";
+        }catch (Exception e){
+        e.printStackTrace();
+    }
+
+    }
 }
